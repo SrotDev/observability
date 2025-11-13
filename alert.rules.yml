@@ -1,0 +1,22 @@
+groups:
+  - name: system-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: |
+          (sum by (instance) (rate(node_cpu_seconds_total{mode!="idle"}[2m])) /
+          sum by (instance) (rate(node_cpu_seconds_total[2m]))) * 100 > 70
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage > 70% for over 2 minutes."
+
+      - alert: AppDown
+        expr: up{job="app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "App is down"
+          description: "Prometheus target for app is down for 1 minute."
